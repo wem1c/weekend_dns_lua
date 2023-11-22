@@ -8,7 +8,9 @@ description = {
    license = "MIT"
 }
 dependencies = {
-   "lua ~> 5.4"
+   "lua ~> 5.4",
+   "luasocket ~> 3.0.0"
+   "classic"
 }
 build = {
    type = "builtin",

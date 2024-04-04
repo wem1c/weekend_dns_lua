@@ -33,4 +33,14 @@ function DNS.Record:new(name, type, class, ttl, data)
   self.data = data
 end
 
+DNS.Packet = Object:extend()
+
+function DNS.Packet:new(header, questions, answers, authorities, additionals)
+  self.header = header
+  self.questions = questions
+  self.answers = answers
+  self.authorities = authorities
+  self.additionals = additionals
+end
+
 return DNS

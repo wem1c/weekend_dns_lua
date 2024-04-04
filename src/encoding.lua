@@ -1,4 +1,5 @@
-local Struct = require "struct"
+-- Import modules
+local Struct   = require "src/modules/struct" -- TODO: deprecate Struct for string
 
 -- Define module variable
 local Encoding = {}
@@ -24,15 +25,20 @@ end
 -- @param name The domain name to encode
 -- @return The encoded domain name
 function Encoding.encode_domain_name(name)
-  local encoded = ""
+  -- Initialize an empty table to store the parts of the domain name
+  local parts = {}
 
-  -- Iterate over each part of the domain name,
-  -- splitting on the '.' character
+  -- Split the domain string on the dot (".") character
   for part in string.gmatch(name, "[^.]+") do
-    encoded = encoded .. #part .. part
+    -- Insert the length of the part followed by the part itself into the table
+    table.insert(parts, tostring(#part))
+    table.insert(parts, part)
   end
+  -- Add a zero byte at the end of the last part to indicate the end of the domain name
+  table.insert(parts, "0")
 
-  return Struct.pack(">s", encoded)
+  -- Return the encoded domain name as a binary string
+  return Struct.pack(">bc0bc0bc0b", table.unpack(parts))
 end
 
 return Encoding

@@ -1,57 +1,109 @@
--- Import 3rd-party modules
-local Struct = require("struct")
-
 -- Define module variable
 local Decoding = {}
 
 --- Decode domain name from binary DNS Question data
--- @param question_bytes Binary data of DNS question
+-- @param reader Reader object with response data loaded
 -- @return decoded_name Decoded domain name
--- @return remaining_bytes Remaining bytes after decoding name
-function Decoding.decode_name_simple(data_bytes)
+function Decoding.decode_name_simple(reader)
+  -- Initialize variables
   local decoded_name = ""
-  local bytes_remaining = data_bytes
+  local parts = {}
+  local part = ""
+  local part_length = 0
 
   repeat
-    local length = bytes_remaining:byte(1)
-    decoded_name = decoded_name .. bytes_remaining:sub(1, 1 + length) .. "."
-    bytes_remaining = bytes_remaining:sub(2 + length + 1)
-  until length == 0
+    -- Unpack the first byte to get the length of the part
+    part_length = string.unpack(">I1", reader:read(1)) -- ">I1" = unsigned int 1 byte (big endian)
 
-  return decoded_name, bytes_remaining
+    -- Unpack the name part based on its length
+    part = string.unpack(">c" .. part_length, reader:read(part_length)) -- ">cn" = fixed-sized string with n bytes
+
+    -- Insert the part into the parts table
+    table.insert(parts, part)
+
+    -- Loop until we get to the end of the name denoted by a zero byte
+  until part_length == 0
+
+  -- Concatenate the parts with a dot separator to form the decoded name
+  decoded_name = table.concat(parts, ".")
+
+  -- Return the decoded name and the remaining data_bytes
+  return decoded_name
 end
 
-local function decode_compressed_name(length, data_bytes)
-  local pointer_bytes = data_bytes:sub(1, 1 + length)
-  local pointer = Struct.unpack(">H", pointer_bytes)
-  print(pointer)
-  return "test"
+--- Decode compressed domain name
+-- @param pointer_byte_compressed - Compressed first byte of the pointer
+-- @param reader - Reader object with response data loaded
+-- @return decoded_name
+local function decode_compressed_name(pointer_byte_compressed, reader)
+  -- Decompress pointer byte
+  local pointer_byte = pointer_byte_compressed & 63 -- 63 = 0011 1111
+
+  -- Convert pointer byte to string (to be concatenated)
+  pointer_byte = string.format("%c", pointer_byte) -- "%c" = char (ASCII)
+
+  -- Get the pointer value by concatenating the decompressed
+  -- first byte and the second byte
+  local pointer_bytes = pointer_byte .. reader:read(1)
+
+  -- Unpack the pointer value from the pointer bytes
+  local pointer = string.unpack(">H", pointer_bytes)
+
+  -- Save the current posiition of the reader
+  local current_pos = reader:tell()
+
+  -- Seek to the position the pointer points to
+  reader:seek(pointer + 1, "set")
+
+  -- Decode the name at current position
+  local result = Decoding.decode_name(reader)
+
+  -- Seek back to the saved position
+  reader:seek(current_pos, "set")
+
+  return result
 end
 
-function Decoding.decode_name(data_bytes)
+--- Decode domain name
+-- @param reader - Reader object with response data loaded
+-- @return decoded_name
+function Decoding.decode_name(reader)
+  -- Initialize variables
   local decoded_name = ""
-  local bytes_remaining = data_bytes
+  local parts = {}
+  local part = ""
 
-  repeat
-    local length = bytes_remaining:byte(1)
-    if length & 11000000 == 0 then
-      decoded_name = decoded_name .. decode_compressed_name(length, bytes_remaining)
+  -- Initialize the part length to the value of the first byte
+  local part_length = string.unpack(">I1", reader:read(1)) -- ">I1" = unsigned int 1 byte (big endian)
+
+  -- Loop until we get to the end of the name denoted by a zero byte
+  while part_length ~= 0 and part_length ~= nil do
+    -- If the first to bits of the part length are 11, then it's compressed
+    if (part_length & 192 ~= 0) then -- 192 = 1100 0000
+      -- Decode the part based on the length
+      part = decode_compressed_name(part_length, reader)
+
+      -- Insert the part into the parts table
+      table.insert(parts, part)
+
+      -- Break the current loop iteration
+      break
     else
-      decoded_name = decoded_name .. bytes_remaining:sub(1, 1 + length) .. "."
-      bytes_remaining = bytes_remaining:sub(2 + length + 1)
+      -- Unpack the part based on the length
+      part = string.unpack(">c" .. part_length, reader:read(part_length)) -- ">cn" = fixed-sized string with n bytes
+
+      -- Insert the part into the parts table
+      table.insert(parts, part)
     end
-  until length == 0
 
-  return decoded_name, bytes_remaining
+    -- Update the part length to the value of the next byte
+    part_length = string.unpack(">I1", reader:read(1)) -- ">I1" = unsigned int 1 byte (big endian)
+  end
+
+  -- Concatenate the parts with a dot separator to form the decoded name
+  decoded_name = table.concat(parts, ".")
+
+  return decoded_name
 end
-
--- def decode_compressed_name(length, reader):
---     pointer_bytes = bytes([length & 0b0011_1111]) + reader.read(1)
---     pointer = struct.unpack("!H", pointer_bytes)[0]
---     current_pos = reader.tell()
---     reader.seek(pointer)
---     result = decode_name(reader)
---     reader.seek(current_pos)
---     return result
 
 return Decoding

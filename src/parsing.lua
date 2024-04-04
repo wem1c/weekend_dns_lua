@@ -1,40 +1,46 @@
--- Import 3rd-party modules
-local Struct = require "struct"
-
--- Import custom modules
-local DNS = require "src.dns"
+-- Import modules
+local DNS      = require "src.dns"
 local Decoding = require "src.decoding"
 
 -- Define module variable
-local Parsing = {}
+local Parsing  = {}
 
 --- Parse DNS header binary data
--- @param header_bytes Binary data of DNS header
--- @return DNS.Header
-function Parsing.parse_header(header_bytes)
-  return DNS.Header(Struct.unpack(">HHHHHH", header_bytes))
+-- @param reader Reader object with response data loaded
+-- @return Decoded DNS Header object
+function Parsing.parse_header(reader)
+  return DNS.Header(string.unpack(">HHHHHH", reader:read(12)))
 end
 
 --- Parse DNS question binary data
--- @param question_bytes Binary data of DNS question
--- @return DNS.Question
--- @return remaining_bytes Remaining bytes after parsing question
-function Parsing.parse_question(question_bytes)
-  local decoded_name, question_bytes_remaining = Decoding.decode_name_simple(question_bytes)
-  local type, class = Struct.unpack(">HH", question_bytes_remaining:sub(1, 4))
-  local bytes_remaining = question_bytes_remaining:sub(5)
+-- @param reader Reader object with response data loaded
+-- @return Decoded DNS Question object
+function Parsing.parse_question(reader)
+  -- Get the decoded name and the remaning question bytes
+  local decoded_name = Decoding.decode_name_simple(reader)
 
-  return DNS.Question(decoded_name, type, class), bytes_remaining
+  -- Get the type and class from the first 4 bytes of the remaining question bytes
+  local type, class = string.unpack(">HH", reader:read(4))
+
+  -- Return the DNS question and the remaining bytes
+  return DNS.Question(decoded_name, type, class)
 end
 
 --- Parse DNS record binary data
--- @param record_bytes Binary data of DNS record
+-- @param reader Reader object with response data loaded
 -- @return DNS.Record
-function Parsing.parse_record(record_bytes)
-  local name, record_bytes_remaining = Decoding.decode_name_simple(record_bytes)
-  local type, class, ttl, data_len = Struct.unpack(">HHIH", record_bytes_remaining:sub(1, 10))
-  local data = record_bytes_remaining:sub(11 + data_len)
-  return DNS.Record(name, type, class, ttl, data)
+function Parsing.parse_record(reader)
+  -- Get the decodeed the name
+  local decoded_name = Decoding.decode_name(reader)
+
+  -- Unpack the type, class, ttl and data length from the first 10 bytes of the remaining data
+  local type, class, ttl, data_len = string.unpack(">HHIH", reader:read(10))
+
+  -- Read the record data bytes based on the unpacked data_len value
+  local data = reader:read(data_len)
+
+  -- Return a DNS Record object based on the decoded/unpacked values
+  return DNS.Record(decoded_name, type, class, ttl, data)
 end
 
 return Parsing

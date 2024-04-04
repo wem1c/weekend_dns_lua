@@ -1,5 +1,5 @@
-Object = require "classic"
-Struct = require "struct"
+Object = require "src/modules/classic"
+Struct = require "src/modules/struct"
 
 -- Define the exported DNS object
 local DNS = {}

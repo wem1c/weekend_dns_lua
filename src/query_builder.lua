@@ -27,7 +27,7 @@ function QueryBuilder.build_query(domain_name, record_type)
   local RECURSION_DESIRED = 1 << 8
 
   -- Create the query header and question objects
-  local header = DNS.Header(id, RECURSION_DESIRED, 1)
+  local header = DNS.Header(id, RECURSION_DESIRED, FLAGS)
   local question = DNS.Question(encoded_name, record_type, CLASS_IN)
 
   -- Encode the header and question objects to binary data

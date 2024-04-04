@@ -27,9 +27,13 @@ end
 function Encoding.encode_domain_name(name)
   -- Initialize an empty table to store the parts of the domain name
   local parts = {}
+  local parts_count = 0
 
   -- Split the domain string on the dot (".") character
   for part in string.gmatch(name, "[^.]+") do
+    -- Increment part counter
+    parts_count = parts_count + 1
+
     -- Insert the length of the part followed by the part itself into the table
     table.insert(parts, tostring(#part))
     table.insert(parts, part)
@@ -37,8 +41,14 @@ function Encoding.encode_domain_name(name)
   -- Add a zero byte at the end of the last part to indicate the end of the domain name
   table.insert(parts, "0")
 
+  local format = ">"
+  for i = 1, parts_count do
+    format = format .. "bc0"
+  end
+  format = format .. "b"
+
   -- Return the encoded domain name as a binary string
-  return Struct.pack(">bc0bc0bc0b", table.unpack(parts))
+  return Struct.pack(format, table.unpack(parts))
 end
 
 return Encoding

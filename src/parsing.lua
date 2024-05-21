@@ -2,6 +2,7 @@
 local DNS      = require "src.dns"
 local Decoding = require "src.decoding"
 local Reader   = require "src.modules.reader"
+local Utils    = require "src.utils"
 
 -- Define module variable
 local Parsing  = {}
@@ -37,8 +38,16 @@ function Parsing.parse_record(reader)
   -- Unpack the type, class, ttl and data length from the first 10 bytes of the remaining data
   local type, class, ttl, data_len = string.unpack(">HHIH", reader:read(10))
 
-  -- Read the record data bytes based on the unpacked data_len value
-  local data = reader:read(data_len)
+  -- Initialize data variable
+  local data = nil
+
+  if type == TYPE_NS then
+    data = Decoding.decode_name(reader)
+  elseif type == TYPE_A then
+    data = Utils.print_ip(reader:read(data_len))
+  else
+    data = reader:read(data_len)
+  end
 
   -- Return a DNS Record object based on the decoded/unpacked values
   return DNS.Record(decoded_name, type, class, ttl, data)

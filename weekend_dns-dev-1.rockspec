@@ -1,5 +1,5 @@
-package = "weekend_dns"
-version = "dev-1"
+package = "weekend_dns_lua"
+version = "1"
 source = {
    url = "*** please add URL for source tarball, zip or repository here ***"
 }
@@ -10,7 +10,6 @@ description = {
 dependencies = {
    "lua ~> 5.4",
    "luasocket ~> 3.0.0"
-   "classic"
 }
 build = {
    type = "builtin",

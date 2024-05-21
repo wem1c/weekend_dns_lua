@@ -28,11 +28,7 @@
 <br />
 <div align="center">
   <h3 align="center">Toy DNS resolver</h3>
-
-  <p align="center">
-    A <a href="https://wizardzines.com/">Wizard Zines</a> project.
-    <br/>
-  </p>
+  <br />
 </div>
 
 <!-- TABLE OF CONTENTS -->
@@ -64,7 +60,7 @@
 
 This is the result of following [Julia Evans'](https://jvns.ca/) [Wizard Zines](https://wizardzines.com/) guide called [Implement DNS in a weekend](https://implement-dns.wizardzines.com/).
 
-Oneo of Julias' difficulty-increasing optional recommendations was to reimplement the original Python code in a different language of our choosing.
+One of Julias' difficulty-increasing optional recommendations was to reimplement the original Python code in a different language of our choosing.
 
 I chose to do it in Lua! 🌙
 

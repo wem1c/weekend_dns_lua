@@ -27,8 +27,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <h3 align="center">Toy DNS resolver</h3>
-  <br />
+  <h2 align="center">Toy DNS resolver</h2>
 </div>
 
 <!-- TABLE OF CONTENTS -->

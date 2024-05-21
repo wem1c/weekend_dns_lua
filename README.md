@@ -20,8 +20,6 @@
 -->
 
 [![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 
 <!-- PROJECT LOGO -->
@@ -137,10 +135,6 @@ Conor C. Peterson - [@wemic@social.linux.pizza](https://social.linux.pizza/@wemi
 
 [contributors-shield]: https://img.shields.io/github/contributors/wem1c/weekend_dns_lua.svg?style=for-the-badge
 [contributors-url]: https://github.com/wem1c/weekend_dns_lua/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/wem1c/weekend_dns_lua.svg?style=for-the-badge
-[forks-url]: https://github.com/wem1c/weekend_dns_lua/network/members
-[stars-shield]: https://img.shields.io/github/stars/wem1c/weekend_dns_lua.svg?style=for-the-badge
-[stars-url]: https://github.com/wem1c/weekend_dns_lua/stargazers
 [issues-shield]: https://img.shields.io/github/issues/wem1c/weekend_dns_lua.svg?style=for-the-badge
 [issues-url]: https://github.com/wem1c/weekend_dns_lua/issues
 [Lua-badge]: https://img.shields.io/badge/lua-000080?style=for-the-badge&logo=lua

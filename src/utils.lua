@@ -11,7 +11,8 @@ end
 
 --- Pretty print an ip address string
 -- @param ip_bytes - The byte string of the ip address to be printed
-function Utils.print_ip(ip_bytes)
+-- @return The ip address string
+function Utils.print_ip(ip_bytes) -- TODO: rename function to string_to_ip
   local ip_parts = {}
 
   for i = 1, #ip_bytes do
@@ -19,15 +20,25 @@ function Utils.print_ip(ip_bytes)
   end
 
   local ip = table.concat(ip_parts, ".")
-  print("\tip ", ip)
+
+  return ip
 end
 
+--- Print a DNS Packet in a human readable format
+-- @param packet The packet to print
 function Utils.print_packet(packet)
-  print("Decoded packet:\n")
-  for k, v in pairs(packet) do
-    print(k, v)
+  if packet[1] ~= nil then
+    print("Packet is an array of records...\n")
+    print("Decoded packet: \n")
+    for i = 1, #packet do
+      for k, v in pairs(packet[i]) do
+        print(k, v)
+      end
+      print("")
+    end
+
+    return
   end
-  print("")
 
   print("Packet.header: \n")
   for k, v in pairs(packet.header) do
@@ -60,13 +71,19 @@ function Utils.print_packet(packet)
 
   print("Packet.authorities: \n")
   for i = 1, #packet.authorities do
-    print(packet.authorities[i])
+    for k, v in pairs(packet.authorities[i]) do
+      print(k, v)
+    end
+    print("")
   end
   print("")
 
   print("Packet.additionals: \n")
   for i = 1, #packet.additionals do
-    print(packet.additionals[i])
+    for k, v in pairs(packet.additionals[i]) do
+      print(k, v)
+    end
+    print("")
   end
   print("")
 end

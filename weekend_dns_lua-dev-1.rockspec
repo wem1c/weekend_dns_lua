@@ -1,10 +1,10 @@
 package = "weekend_dns_lua"
-version = "1"
+version = "dev-1"
 source = {
-   url = "*** please add URL for source tarball, zip or repository here ***"
+   url = "https://github.com/wem1c/weekend_dns_lua"
 }
 description = {
-   homepage = "*** please enter a project homepage ***",
+   homepage = "https://github.com/wem1c/weekend_dns_lua",
    license = "MIT"
 }
 dependencies = {

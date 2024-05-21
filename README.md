@@ -78,6 +78,7 @@ I chose to do it in Lua! 🌙
 ### Prerequisites
 
 - [Lua](https://www.lua.org/download.html)
+- [LuaRocks](https://github.com/luarocks/luarocks/wiki/Download) - for installing dependencies
 
 ### Installation
 
@@ -93,7 +94,13 @@ I chose to do it in Lua! 🌙
    cd weekend_dns_lua
    ```
 
-3. Run the entry file using lua
+3. Install dependencies
+
+   ```sh
+   luarocks install luasocket
+   ```
+
+4. Run the entry file using lua
 
    ```sh
    lua weekend_dns.lua

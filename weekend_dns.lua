@@ -10,77 +10,27 @@
 
   ]]
 
-
--- ======================================================
--- PART 1: Build a DNS query
--- ======================================================
-
 -- Import custom modules
-local QB = require "src.query_builder"
-local Resolving = require "src.resolving"
-local Utils = require "src.utils"
+local Resolving   = require "src.resolving"
 
--- Define type and class constants
-TYPE_A = 1
-CLASS_IN = 1
+-- Define record type constants
+TYPE_A            = 1
+TYPE_TXT          = 16
+TYPE_NS           = 2
 
--- Define domain name and record type variables
-local domain_name = "www.example.com"
-local record_type = TYPE_A
+-- Define class constant
+CLASS_IN          = 1
 
-print("Building query for domain name: " .. domain_name .. " and record type: " .. record_type .. " ...\n")
+-- Define flag constants
+FLAGS             = 1 -- recursion desired (when asking a DNS caching server)
+--FLAGS           = 0 -- recursion not desired (when asking a DNS server directly)
 
--- Build the query
-local query = QB.build_query(domain_name, record_type)
+-- TODO: www.facebook.com isn't parsed correctly.
+-- "But I’ll leave those as a puzzle for you to solve if you want (hint: look at the record type!)"
+-- See: https://implement-dns.wizardzines.com/book/part_2#test-out-all-our-code
 
-print("Query (bytes):\n")
-Utils.print_bytes(query)
+local resolved_ip = Resolving.resolve('conor.zone', TYPE_A)
+print(resolved_ip)
 
--- Send the query to Google's DNS server
-local response = Resolving.send(query, "8.8.8.8", 53)
-
--- Exit early if the response is empty
-if not response then
-  print("No response.")
-  return -1
-end
-
--- Print the response
-print("Response (bytes):\n")
-Utils.print_bytes(response)
-
--- ======================================================
--- PART 2: Parse the response
--- ======================================================
-
--- Import modules
-local Reader = require "src.modules.reader"
-local Parsing = require "src.parsing"
-
--- Load the response into a reader object
-local reader = Reader.new(response)
-
--- Decode the header and the question
-local decoded_header = Parsing.parse_header(reader)
-local decoded_question = Parsing.parse_question(reader)
-
-print("Decoded header:\n")
-for k, v in pairs(decoded_header) do
-  print(k, v)
-end
-
-print("")
-
-print("Decoded question:\n")
-for k, v in pairs(decoded_question) do
-  print(k, v)
-end
-
-print("")
-
-local decoded_record = Parsing.parse_record(reader)
-
-print("Decoded record:\n")
-for k, v in pairs(decoded_record) do
-  print(k, v)
-end
+-- TODO: implement additional Exercises
+-- See: https://implement-dns.wizardzines.com/book/exercises
